@@ -2,16 +2,16 @@
 # Use of this source code is governed by an Apache license
 # that can be found in the LICENSE file.
 
-# Prepare the build environment
-FROM node:12-alpine3.14 as builder
+# Prepare the build environment, 这是一个debian镜像
+FROM cr.loongnix.cn/library/node:12.19.1 as builder
 
 ARG YARN_VERSION=1.22.4
 
 WORKDIR /kubesphere
 ADD . /kubesphere/
 
-RUN apk add --no-cache --virtual .build-deps ca-certificates python2 python3 py3-pip make openssl g++ bash
-RUN npm install yarn@${YARN_VERSION}
+RUN apt update && apt install ca-certificates python2 python3 python3-pip make openssl g++ bash -y
+#RUN npm install yarn@${YARN_VERSION}
 
 # If you have trouble downloading the yarn binary, try the following:
 # RUN yarn config set registry https://registry.npm.taobao.org
