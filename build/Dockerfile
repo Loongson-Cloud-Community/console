@@ -16,7 +16,7 @@ RUN apt update && apt install ca-certificates python2 python3 python3-pip make o
 # If you have trouble downloading the yarn binary, try the following:
 # RUN yarn config set registry https://registry.npm.taobao.org
 
-RUN yarn && yarn build
+# RUN yarn && yarn build
 
 # Copy compiled files
 RUN mkdir -p /out/server
@@ -32,7 +32,9 @@ RUN mv /kubesphere/package.json /out/
 ##############
 # Final Image
 ##############
-FROM node:12-alpine3.14 as base_os_context
+FROM cr.loongnix.cn/library/alpine:3.11 as base_os_context
+
+RUN apk add --no-cache nodejs npm
 
 RUN adduser -D -g kubesphere -u 1002 kubesphere && \
     mkdir -p /opt/kubesphere/console && \
