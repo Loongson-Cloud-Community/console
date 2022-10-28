@@ -3,19 +3,25 @@
 # that can be found in the LICENSE file.
 
 # Prepare the build environment
-FROM node:12-alpine3.14 as builder
+FROM cr.loongnix.cn/library/node:12.19.1 as builder
 
 ARG YARN_VERSION=1.22.4
+ARG PROXY_ADDRESS
+
 
 WORKDIR /kubesphere
 ADD . /kubesphere/
 
-RUN apk add --no-cache --virtual .build-deps ca-certificates python2 python3 py3-pip make openssl g++ bash
-RUN npm install yarn@${YARN_VERSION}
+#RUN apk add --no-cache --virtual .build-deps ca-certificates python2 python3 py3-pip make openssl g++ bash
+RUN apt update && apt install git ca-certificates python2 python3 python3-pip make openssl g++ bash -y
+#RUN npm install yarn@${YARN_VERSION}
+ENV http_proxy $PROXY_ADDRESS
+ENV https_proxy $PROXY_ADDRESS
 
 # If you have trouble downloading the yarn binary, try the following:
 # RUN yarn config set registry https://registry.npmmirror.com
 
+RUN yarn config set proxy $PROXY_ADDRESS && yarn config set https-proxy $PROXY_ADDRESS
 RUN yarn && yarn build
 
 # Copy compiled files
@@ -32,7 +38,9 @@ RUN mv /kubesphere/package.json /out/
 ##############
 # Final Image
 ##############
-FROM node:12-alpine3.14 as base_os_context
+FROM cr.loongnix.cn/library/alpine:3.11 as base_os_context
+
+RUN apk add --no-cache nodejs npm
 
 RUN adduser -D -g kubesphere -u 1002 kubesphere && \
     mkdir -p /opt/kubesphere/console && \
